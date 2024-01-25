@@ -1,15 +1,12 @@
-const readline = require("readline/promises");
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
+const container = document.querySelector(".container");
+let i = 0;
 
 const GameBoard = (() => {
   const board = new Array(9);
   const getBoard = () => board;
   const mark = (x, symbol) => {
     // if place is taken
-    if (board[x] != undefined) return null;
+    if (board[x] != undefined) throw new Error("Already taken");
     if (symbol.toLowerCase() !== "x" && symbol.toLowerCase() !== "o")
       return null;
 
@@ -30,51 +27,84 @@ const GameBoard = (() => {
 const Game = (() => {
   const board = GameBoard.getBoard();
   const decideWinner = () => {
-    for (let i = 0; i < 7; i++) {
-      if (i === 4 || i === 5) continue;
-
-      if (
-        (board[i] === board[i + 1] && board[i + 1] === board[i + 2]) ||
-        (board[i] === board[i + 3] && board[i + 3] === board[i + 6]) ||
-        (i === 0 &&
-          board[i] === board[i + 4] &&
-          board[i + 4] === board[i + 8]) ||
-        (i === 2 &&
-          board[i + 2] === board[i + 4] &&
-          board[i + 4] === board[i + 6])
-      ) {
-        // winner
-        return board[i];
-      }
+    const winningCombinations = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    for (const combination of winningCombinations) {
+      const [a, b, c] = combination;
+      if (board[a] && board[a] === board[b] && board[b] === board[c])
+        return true;
     }
-    return null;
+
+    return false;
   };
 
-  const playRound = async () => {
-    let i = 0;
-    let symbol = "";
-    do {
-      if (i % 2 === 0) {
-        // x turn
-        symbol = "x";
-        console.log("X turn");
-      } else {
-        // o turn
-        symbol = "o";
-        console.log("O turn");
-      }
-      const place = await rl.question("Add place: ");
-
-      const marked = GameBoard.mark(place, symbol);
-      // invalid input
-      if (!marked) continue;
-      const win = Game.decideWinner();
-      if (win) return `The winner is ${win}`;
-    } while (i++ < 9);
-
-    return "It's a tie";
+  const playRound = () => {
   };
   return { decideWinner, playRound };
+})();
+
+const DisplayController = (() => {
+  const board = document.createElement("div");
+
+  const handleClick = (e) => {
+    const box = e.target;
+    const index = box.getAttribute("data-index");
+    const player = i % 2 === 0 ? p1 : p2;
+
+    try {
+      const symbol = player.getPlayerSymbol();
+      GameBoard.mark(index, symbol);
+      box.textContent = symbol;
+      const win = Game.decideWinner();
+      console.log(win, i === 9);
+      if (win || i === 9) displayWinner(player);
+      i++;
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
+  const displayWinner = (player) => {
+    const message = document.createElement("h2");
+
+    message.textContent =
+      i !== 9 ? `The winner is ${player.getPlayerName()}!` : "It's a tie";
+
+    container.appendChild(message);
+  };
+
+  const displayBoard = () => {
+    board.classList.add("board");
+
+    const boxes = new Array(9).fill().map((_, i) => {
+      const box = document.createElement("div");
+      box.classList.add("box");
+      box.setAttribute("data-index", i);
+      box.addEventListener("click", handleClick);
+      return box;
+    });
+
+    boxes.forEach((box) => board.appendChild(box));
+
+    container.appendChild(board);
+  };
+
+  const resetBoard = () => {
+    board.remove();
+    displayBoard();
+    document.querySelector("h2").remove();
+    i = 0;
+  };
+
+  return { displayBoard, resetBoard };
 })();
 
 const createPlayer = (name, symbol) => {
@@ -89,11 +119,8 @@ const createPlayer = (name, symbol) => {
   return { getPlayerName, getPlayerSymbol, setPlayerName };
 };
 
-const p1 = createPlayer("zby", "x");
-const p2 = createPlayer("zby2", "y");
+const p1 = createPlayer("zby", "X");
+const p2 = createPlayer("zby2", "O");
 
-const main = async () => {
-  console.log(await Game.playRound());
-};
-
-main();
+DisplayController.displayBoard();
+Game.playRound(p1, p2);
