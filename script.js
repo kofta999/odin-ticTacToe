@@ -1,5 +1,20 @@
 const container = document.querySelector(".container");
+const form = document.querySelector("form");
 let i = 0;
+let p1, p2;
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const data = new FormData(form);
+
+  const p1Name = data.get("player1");
+  const p2Name = data.get("player2");
+
+  p1 = createPlayer(p1Name, "X");
+  p2 = createPlayer(p2Name, "O");
+
+  Game.playRound(p1, p2);
+});
 
 const GameBoard = (() => {
   const board = new Array(9);
@@ -10,16 +25,13 @@ const GameBoard = (() => {
     if (symbol.toLowerCase() !== "x" && symbol.toLowerCase() !== "o")
       return null;
 
-    // from 0 ~ 8
+    // from 0 ~ 9
     board[x] = symbol;
   };
 
   const reset = () => {
     board.fill(undefined);
   };
-
-  // add display board on page
-  // add reset board
 
   return { mark, getBoard, reset };
 })();
@@ -30,10 +42,10 @@ const Game = (() => {
     const winningCombinations = [
       [0, 1, 2],
       [3, 4, 5],
-      [6, 7, 8],
+      [6, 7, 9],
       [0, 3, 6],
       [1, 4, 7],
-      [2, 5, 8],
+      [2, 5, 9],
       [0, 4, 8],
       [2, 4, 6],
     ];
@@ -47,12 +59,15 @@ const Game = (() => {
   };
 
   const playRound = () => {
+    DisplayController.resetBoard();
+    DisplayController.displayBoard();
   };
+
   return { decideWinner, playRound };
 })();
 
 const DisplayController = (() => {
-  const board = document.createElement("div");
+  let board;
 
   const handleClick = (e) => {
     const box = e.target;
@@ -65,11 +80,24 @@ const DisplayController = (() => {
       box.textContent = symbol;
       const win = Game.decideWinner();
       console.log(win, i === 9);
-      if (win || i === 9) displayWinner(player);
+      if (win || i === 9) {
+        displayWinner(player);
+        // make it dimmer
+        board.style.pointerEvents = "none";
+        displayResetButton();
+      }
       i++;
     } catch (e) {
       alert(e.message);
     }
+  };
+
+  const displayResetButton = () => {
+    const reset = document.createElement("button");
+    reset.id = "reset";
+    reset.textContent = "Play Again";
+    reset.addEventListener("click", Game.playRound);
+    container.appendChild(reset);
   };
 
   const displayWinner = (player) => {
@@ -82,6 +110,7 @@ const DisplayController = (() => {
   };
 
   const displayBoard = () => {
+    board = document.createElement("div");
     board.classList.add("board");
 
     const boxes = new Array(9).fill().map((_, i) => {
@@ -98,9 +127,10 @@ const DisplayController = (() => {
   };
 
   const resetBoard = () => {
-    board.remove();
-    displayBoard();
-    document.querySelector("h2").remove();
+    document.querySelector(".board")?.remove();
+    GameBoard.reset();
+    document.querySelector("h2")?.remove();
+    document.querySelector("#reset")?.remove();
     i = 0;
   };
 
@@ -118,9 +148,3 @@ const createPlayer = (name, symbol) => {
 
   return { getPlayerName, getPlayerSymbol, setPlayerName };
 };
-
-const p1 = createPlayer("zby", "X");
-const p2 = createPlayer("zby2", "O");
-
-DisplayController.displayBoard();
-Game.playRound(p1, p2);
