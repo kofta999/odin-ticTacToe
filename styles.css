@@ -1,10 +1,24 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
 * {
   box-sizing: border-box;
   font-family: "Courier New", Courier, monospace;
+  background-color: #0a0a0a;
+  color: #fafafa;
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  --fg-color: #171717;
+  --border-color: #262626;
+}
+
+body {
+  height: 100vh;
 }
 
 .container {
   display: flex;
+  gap: 50px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -12,6 +26,7 @@
 
 .board {
   display: grid;
+  gap: 20px;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   width: 500px;
@@ -19,10 +34,48 @@
 }
 
 .box {
-  background-color: yellow;
-  border: 1px solid green;
+  background-color: var(--fg-color);
+  border: 3px solid var(--border-color);
+  font-weight: lighter;
+  border-radius: 5px;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 7em;
+}
+
+.btn {
+  border: none;
+  padding: 20px 100px;
+  font-size: 2em;
+  background-color: var(--fg-color);
+  border-radius: 10px;
+}
+
+.btn:hover {
+  filter: brightness(120%);
+}
+
+.players > form {
+  display: grid;
+  justify-items: center;
+  gap: 20px;
+  grid-template-columns: repeat(2, 0.5fr);
+}
+
+.players button {
+  grid-column: 1 / -1;
+}
+
+.players input {
+  padding: 10px;
+  font-size: 1.5em;
+  width: 100%;
+  border: 3px solid var(--border-color);
+  background-color: var(--fg-color);
+  border-radius: 10px;
+}
+
+h2 {
+  font-size: 1.75em;
 }

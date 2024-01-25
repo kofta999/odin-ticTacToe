@@ -7,8 +7,8 @@ form.addEventListener("submit", (e) => {
   e.preventDefault();
   const data = new FormData(form);
 
-  const p1Name = data.get("player1");
-  const p2Name = data.get("player2");
+  const p1Name = data.get("player1") || "Player 1";
+  const p2Name = data.get("player2") || "Player 2";
 
   p1 = createPlayer(p1Name, "X");
   p2 = createPlayer(p2Name, "O");
@@ -18,26 +18,24 @@ form.addEventListener("submit", (e) => {
 
 const GameBoard = (() => {
   const board = new Array(9);
-  const getBoard = () => board;
+  const get = () => board;
   const mark = (x, symbol) => {
-    // if place is taken
     if (board[x] != undefined) throw new Error("Already taken");
     if (symbol.toLowerCase() !== "x" && symbol.toLowerCase() !== "o")
       return null;
 
-    // from 0 ~ 9
     board[x] = symbol;
   };
 
   const reset = () => {
-    board.fill(undefined);
+    board.fill();
   };
 
-  return { mark, getBoard, reset };
+  return { mark, get, reset };
 })();
 
 const Game = (() => {
-  const board = GameBoard.getBoard();
+  const board = GameBoard.get();
   const decideWinner = () => {
     const winningCombinations = [
       [0, 1, 2],
@@ -49,6 +47,7 @@ const Game = (() => {
       [0, 4, 8],
       [2, 4, 6],
     ];
+
     for (const combination of winningCombinations) {
       const [a, b, c] = combination;
       if (board[a] && board[a] === board[b] && board[b] === board[c])
@@ -83,6 +82,7 @@ const DisplayController = (() => {
       if (win || i === 9) {
         displayWinner(player);
         // make it dimmer
+        board.style.opacity = "0.5";
         board.style.pointerEvents = "none";
         displayResetButton();
       }
@@ -95,6 +95,7 @@ const DisplayController = (() => {
   const displayResetButton = () => {
     const reset = document.createElement("button");
     reset.id = "reset";
+    reset.classList.add("btn");
     reset.textContent = "Play Again";
     reset.addEventListener("click", Game.playRound);
     container.appendChild(reset);
