@@ -58,7 +58,6 @@ body {
 
 .players > form {
   display: grid;
-  justify-items: center;
   gap: 20px;
   grid-template-columns: repeat(2, 0.5fr);
 }

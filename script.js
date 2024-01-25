@@ -81,24 +81,14 @@ const DisplayController = (() => {
       console.log(win, i === 9);
       if (win || i === 9) {
         displayWinner(player);
-        // make it dimmer
         board.style.opacity = "0.5";
         board.style.pointerEvents = "none";
-        displayResetButton();
+        document.querySelector("button").textContent = "Play Again";
       }
       i++;
     } catch (e) {
       alert(e.message);
     }
-  };
-
-  const displayResetButton = () => {
-    const reset = document.createElement("button");
-    reset.id = "reset";
-    reset.classList.add("btn");
-    reset.textContent = "Play Again";
-    reset.addEventListener("click", Game.playRound);
-    container.appendChild(reset);
   };
 
   const displayWinner = (player) => {
@@ -128,8 +118,8 @@ const DisplayController = (() => {
   };
 
   const resetBoard = () => {
-    document.querySelector(".board")?.remove();
     GameBoard.reset();
+    document.querySelector(".board")?.remove();
     document.querySelector("h2")?.remove();
     document.querySelector("#reset")?.remove();
     i = 0;
